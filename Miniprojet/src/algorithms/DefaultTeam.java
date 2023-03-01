@@ -44,8 +44,7 @@ public class DefaultTeam {
 		Kruskal k = new Kruskal();
 		// graphe complet qui couvre tous le points de hitpoints
 		Tree2D steinerTree = k.kruskal(hitPoints);
-
-		// replace arretes par le chemin le plus court entre deux points
+		//calcul du plus court chemain entre les couple (u v)
 		int[][] paths = calculShortestPaths(points, edgeThreshold);
 		//remplace chaque arete (u-v) de poid (p) par d'autres arrete de poid minimum 
 		Tree2D newSteinerTree = algo(paths, steinerTree, points);
@@ -53,6 +52,64 @@ public class DefaultTeam {
 		return newSteinerTree;
 	}
 
+	
+	
+	
+	public Tree2D calculSteinerBudget(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
+		Kruskal k = new Kruskal();
+		// graphe complet qui couvre tous le points de hitpoints
+		Tree2D steinerTree = k.kruskal(hitPoints);
+
+		// replace arretes par le chemin le plus court entre deux points
+		int[][] paths = calculShortestPaths(points, edgeThreshold);
+		
+		Tree2D newSteinerTree = algobuget(paths, steinerTree, points);
+
+		return newSteinerTree ;
+	}
+	
+	public int  count =0 ;
+	boolean budgetAtteint=false;
+	private Tree2D algobuget(int[][] paths, Tree2D steinerTree, ArrayList<Point> points) {
+		Point maison_mere = steinerTree.getRoot();
+		ArrayList<Tree2D> newChildreen = new ArrayList<>();
+		
+		for (Tree2D subTree : steinerTree.getSubTrees())
+		{ 
+		  while (!  budgetAtteint) {
+			Point currentChild =  subTree.getRoot();
+			int k = paths[points.indexOf(maison_mere)][points.indexOf(currentChild)];
+			if (points.get(k).equals(currentChild)) {
+				if (count+maison_mere.distance(currentChild) >= BUDGET) //ajoute pas le nouveau point 
+				{    budgetAtteint= true;
+					 break; 	 
+				}else{  //ajoute le nouveau point 
+					count +=maison_mere.distance(currentChild);
+					Tree2D newSubTree =algobuget (paths, subTree, points);
+					newChildreen.add(newSubTree);
+				}
+			  }
+			else {
+				if (count+maison_mere.distance(points.get(k)) >= BUDGET)
+				{    budgetAtteint= true;
+					 break; 	 
+				}else {
+					Point newchild = points.get(k);
+					ArrayList<Tree2D> temp = new ArrayList<Tree2D>();
+					temp.add(subTree);
+					Tree2D newTree = new Tree2D(newchild, temp);
+					count +=maison_mere.distance(newchild);
+					Tree2D newSubTree = algobuget(paths, newTree, points);
+					newChildreen.add(newSubTree);
+				}	
+			}
+		}
+	}
+		return new Tree2D(maison_mere, newChildreen);
+}
+	
+			
+	
 	private Tree2D algo(int[][] paths, Tree2D steinerTree, ArrayList<Point> points) {
 		Point racine = steinerTree.getRoot();
 		ArrayList<Tree2D> newChildreen = new ArrayList<>();
@@ -79,12 +136,6 @@ public class DefaultTeam {
 		}
 		 return  new Tree2D(racine, newChildreen);
 	
-	}
-	
-	
-	public Tree2D calculSteinerBudget(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
-		
-		return null ;
 	}
 }
 
