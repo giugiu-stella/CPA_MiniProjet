@@ -73,14 +73,13 @@ public class DefaultTeam {
 	private Tree2D algobuget(int[][] paths, Tree2D steinerTree, ArrayList<Point> points) {
 		Point maison_mere = steinerTree.getRoot();
 		ArrayList<Tree2D> newChildreen = new ArrayList<>();
-		
+		 while (!  budgetAtteint) {
 		for (Tree2D subTree : steinerTree.getSubTrees())
-		{ 
-		  while (!  budgetAtteint) {
-			Point currentChild =  subTree.getRoot();
+		{
+		    Point currentChild =  subTree.getRoot();
 			int k = paths[points.indexOf(maison_mere)][points.indexOf(currentChild)];
 			if (points.get(k).equals(currentChild)) {
-				if (count+maison_mere.distance(currentChild) >= BUDGET) //ajoute pas le nouveau point 
+				if (count+maison_mere.distance(currentChild) >=BUDGET) //ajoute pas le nouveau point 
 				{    budgetAtteint= true;
 					 break; 	 
 				}else{  //ajoute le nouveau point 
@@ -89,23 +88,53 @@ public class DefaultTeam {
 					newChildreen.add(newSubTree);
 				}
 			  }
-			else {
-				if (count+maison_mere.distance(points.get(k)) >= BUDGET)
-				{    budgetAtteint= true;
+			else{
+				Point newchild = points.get(k);
+				int cpt = (int) maison_mere.distance(newchild);
+				int indice_next_chmain=0;
+				Point next_point =newchild;
+				Tree2D newTree = null ;
+				ArrayList<Tree2D> temp = new ArrayList<Tree2D>();			
+				ArrayList<Tree2D> temp_1 = new ArrayList<Tree2D>();				
+				Tree2D realsub=subTree;
+				
+				while (!next_point.equals(currentChild))
+				{   //cherche la distance entre mere_maison et le reste  ne depasse pas bugdet 
+					indice_next_chmain=paths[k][points.indexOf(currentChild)];
+					k=indice_next_chmain;
+					cpt=(int) (next_point.distance(points.get(indice_next_chmain))+cpt) ; 	
+					next_point=points.get(indice_next_chmain);		
+					System.out.println("je suis la "+next_point.toString());
+				    temp_1.add(new Tree2D(next_point, new ArrayList<Tree2D>()));	  /// k1 k2 .....kn 
+				}		
+				System.out.println("la valeur de count  "+count);
+
+				if(count+cpt >= BUDGET)
+				{ 
+					System.out.println("Buget atteint ");
+					budgetAtteint= true;
 					 break; 	 
-				}else {
-					Point newchild = points.get(k);
-					ArrayList<Tree2D> temp = new ArrayList<Tree2D>();
+				}else{
+					temp_1.add( new Tree2D(currentChild,new ArrayList<Tree2D>()) );
+					Tree2D temp_2;	
+					int j = temp_1.size()-1;
+		
+					 
+					 
+					//problème icic dans temp_1 
+					Tree2D newSub =new Tree2D( temp_1.get(0).getRoot(), temp_1);
 					temp.add(subTree);
-					Tree2D newTree = new Tree2D(newchild, temp);
-					count +=maison_mere.distance(newchild);
+					temp.add( newSub);			
+					newTree= new Tree2D(newchild, temp);
+					count =cpt+count;   
 					Tree2D newSubTree = algobuget(paths, newTree, points);
 					newChildreen.add(newSubTree);
 				}	
 			}
 		}
+		budgetAtteint= true;
 	}
-		return new Tree2D(maison_mere, newChildreen);
+return new Tree2D(maison_mere, newChildreen);
 }
 	
 			
