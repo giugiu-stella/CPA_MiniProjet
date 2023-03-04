@@ -78,7 +78,8 @@ public class DefaultTeam {
 			int k = paths[points.indexOf(maison_mere)][points.indexOf(currentChild)];
 			if (points.get(k).equals(currentChild)) {
 				if (count+maison_mere.distance(currentChild) >=BUDGET) //ajoute pas le nouveau point 
-				{    budgetAtteint= true;
+				{   algobuget (paths, subTree, points);
+					budgetAtteint= true;
 					 break; 	 
 				}else{  //ajoute le nouveau point 
 					count +=maison_mere.distance(currentChild);
@@ -111,13 +112,15 @@ public class DefaultTeam {
 					temp_1=temp_1.get(0).getSubTrees();
 				    temp_1.add(new Tree2D(next_point, new ArrayList<Tree2D>()));	  /// k1 k2 .....kn 
 				    
-				}		
+				}
+				
 				temp_1=temp_1.get(0).getSubTrees();
 			    temp_1.add(new Tree2D(currentChild, new ArrayList<Tree2D>()));	 
 				System.out.println("la valeur de count  "+count);
 
-				if(count+cpt >= BUDGET)
+				if(budgetAtteint== false && count+cpt >= BUDGET)
 				{ 
+					Tree2D newSubTree =algobuget (paths, subTree, points);
 					System.out.println("Buget atteint ");
 					budgetAtteint= true;
 					 break; 	 
@@ -125,7 +128,7 @@ public class DefaultTeam {
 					//problème icic dans temp_1 
 					Tree2D newSub =new Tree2D( temp_final.get(0).getRoot(), temp_final.get(0).getSubTrees());
 					temp.add(subTree);
-					temp.add( newSub);			
+				//	temp.add( newSub);			
 					newTree= new Tree2D(newchild, temp);
 					count =cpt+count; 
 					newChildreen.add(newSub);
