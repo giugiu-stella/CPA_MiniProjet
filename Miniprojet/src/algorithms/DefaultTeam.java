@@ -8,8 +8,7 @@ import javax.security.auth.kerberos.KerberosCredMessage;
 public class DefaultTeam {
 
 	public final static double BUDGET = 1664;
-	
-	// algorithme Floyd-Warshall
+
 	  public int[][] calculShortestPaths(ArrayList<Point> points, int edgeThreshold) {
 		    int[][] paths=new int[points.size()][points.size()];
 		    for (int i=0;i<paths.length;i++) for (int j=0;j<paths.length;j++) paths[i][j]=-1;
@@ -19,7 +18,6 @@ public class DefaultTeam {
 		    for(int k=0;k<paths.length;k++) {
 		    	for(int i=0;i<paths.length;i++) {
 		    		for(int j=0;j<paths.length;j++) {
-					// on vérifie pour stocker les chemins indirects dans paths et la distance dans dist
 		    			if (dist[i][j]>(dist[i][k]+dist[k][j])) {
 		    				paths[i][j]=paths[i][k];
 		    				dist[i][j]=(dist[i][k]+dist[k][j]);
@@ -30,8 +28,7 @@ public class DefaultTeam {
 		    
 		    return paths;
 		  }
-	
-// mise à jour des matrices dist et paths avec les chemins directs 		  
+		  
   public void matriceVoisins(double[][] dist,int[][] paths,ArrayList<Point> points,int edgeThreshold){
 			  for(int i=0;i<paths.length;i++) {
 				  for (int j=0;j<paths.length;j++) {
@@ -45,11 +42,11 @@ public class DefaultTeam {
 		  
 	public Tree2D calculSteiner(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
 		Kruskal k = new Kruskal();
-		// calcul du graphe complet qui couvre tous les points de hitpoints
+		// graphe complet qui couvre tous le points de hitpoints
 		Tree2D steinerTree = k.kruskal(hitPoints);
-		//calcul du plus court chemin entre les couples (u v)
+		//calcul du plus court chemain entre les couple (u v)
 		int[][] paths = calculShortestPaths(points, edgeThreshold);
-		//remplace chaque arête (u-v) de poids (p) par d'autres arêtes de poids minimum 
+		//remplace chaque arete (u-v) de poid (p) par d'autres arrete de poid minimum 
 		Tree2D newSteinerTree = algo(paths, steinerTree, points);
 
 		return newSteinerTree;
@@ -60,10 +57,10 @@ public class DefaultTeam {
 	
 	public Tree2D calculSteinerBudget(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
 		Kruskal k = new Kruskal();
-		// calcul du graphe complet qui couvre tous les points de hitpoints
+		// graphe complet qui couvre tous le points de hitpoints
 		Tree2D steinerTree = k.kruskal(hitPoints);
 
-		// remplace les arêtes par le chemin le plus court entre deux points
+		// replace arretes par le chemin le plus court entre deux points
 		int[][] paths = calculShortestPaths(points, edgeThreshold);
 		
 		Tree2D newSteinerTree = algobuget(paths, steinerTree, points);
@@ -73,7 +70,6 @@ public class DefaultTeam {
 	
 	public int  count =0 ;
 	boolean budgetAtteint=false;
-	
 	private Tree2D algobuget(int[][] paths, Tree2D steinerTree, ArrayList<Point> points) {
 		Point maison_mere = steinerTree.getRoot();
 		ArrayList<Tree2D> newChildreen = new ArrayList<>();
@@ -149,15 +145,15 @@ return new Tree2D(maison_mere, newChildreen);
 		for (Tree2D subTree : steinerTree.getSubTrees()) {
 			Point currentChild = subTree.getRoot();
 			
-			//le sucesseur direct de la racine  dans le plus court chemain entre i et j
+			//le sucesseur directe de la racine  dans le plus court chemain entre i et j
 			int k = paths[points.indexOf(racine)][points.indexOf(currentChild)];
 
-			//Cas1: le sucessseur direct à la racine est le meme que curentchild (aucune modification)  etant donne que le plus cours chemin entre (racine-curentchild) est (racine-curentchild)
+			//Cas1: le sucessseur directe a la racine est le meme que curentchild (aucune modification)  etant donne que le plus cours chemain entre (racine-curentchild) est (racine-curentchild)
 			if (points.get(k).equals(currentChild)) {
 				Tree2D newSubTree = algo(paths, subTree, points);
 				newChildreen.add(newSubTree);
 			} else {
-				//cas2: existance d'un point k (racine--- k--- ....curentCHILD) qui fait qu'il existe un autre chemin plus court entre racine et curentchild
+				//cas2: existance d'un point k (racine--- k--- ....curentCHILD) qui fait que il existe un autre chemain  entre racine et curentchild plus court 
 				//remplacer  :r(acine--- curentchild) par ( racine ----k---curentchild)
 				Point newchild = points.get(k);
 				ArrayList<Tree2D> temp = new ArrayList<Tree2D>();
