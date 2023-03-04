@@ -3,8 +3,6 @@ package algorithms;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import javax.security.auth.kerberos.KerberosCredMessage;
-
 public class DefaultTeam {
 
 	public final static double BUDGET = 1664;
@@ -96,8 +94,13 @@ public class DefaultTeam {
 				Tree2D newTree = null ;
 				ArrayList<Tree2D> temp = new ArrayList<Tree2D>();			
 				ArrayList<Tree2D> temp_1 = new ArrayList<Tree2D>();				
+				ArrayList<Tree2D> temp_final = new ArrayList<Tree2D>();				
 				Tree2D realsub=subTree;
-				
+				if (temp_1.isEmpty())
+				{
+					temp_final=temp_1;
+					temp_1.add(new Tree2D(newchild, new ArrayList<Tree2D>()));
+				}
 				while (!next_point.equals(currentChild))
 				{   //cherche la distance entre mere_maison et le reste  ne depasse pas bugdet 
 					indice_next_chmain=paths[k][points.indexOf(currentChild)];
@@ -105,8 +108,12 @@ public class DefaultTeam {
 					cpt=(int) (next_point.distance(points.get(indice_next_chmain))+cpt) ; 	
 					next_point=points.get(indice_next_chmain);		
 					System.out.println("je suis la "+next_point.toString());
+					temp_1=temp_1.get(0).getSubTrees();
 				    temp_1.add(new Tree2D(next_point, new ArrayList<Tree2D>()));	  /// k1 k2 .....kn 
+				    
 				}		
+				temp_1=temp_1.get(0).getSubTrees();
+			    temp_1.add(new Tree2D(currentChild, new ArrayList<Tree2D>()));	 
 				System.out.println("la valeur de count  "+count);
 
 				if(count+cpt >= BUDGET)
@@ -115,18 +122,13 @@ public class DefaultTeam {
 					budgetAtteint= true;
 					 break; 	 
 				}else{
-					temp_1.add( new Tree2D(currentChild,new ArrayList<Tree2D>()) );
-					Tree2D temp_2;	
-					int j = temp_1.size()-1;
-		
-					 
-					 
 					//problème icic dans temp_1 
-					Tree2D newSub =new Tree2D( temp_1.get(0).getRoot(), temp_1);
+					Tree2D newSub =new Tree2D( temp_final.get(0).getRoot(), temp_final.get(0).getSubTrees());
 					temp.add(subTree);
 					temp.add( newSub);			
 					newTree= new Tree2D(newchild, temp);
-					count =cpt+count;   
+					count =cpt+count; 
+					newChildreen.add(newSub);
 					Tree2D newSubTree = algobuget(paths, newTree, points);
 					newChildreen.add(newSubTree);
 				}	
