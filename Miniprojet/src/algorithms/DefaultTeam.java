@@ -216,7 +216,7 @@ public class DefaultTeam {
 		    Point currentChild =  subTree.getRoot();
 			int k = paths[points.indexOf(maison_mere)][points.indexOf(currentChild)];
 			if (points.get(k).equals(currentChild)) {
-				if (count+maison_mere.distance(currentChild) >=BUDGET) //ajoute pas le nouveau point 
+				if (count+maison_mere.distance(currentChild) >=BUDGET) // n'ajoute pas le nouveau point 
 				{   algobuget (paths, subTree, points);
 					budgetAtteint= true;
 					 break; 	 
@@ -242,7 +242,7 @@ public class DefaultTeam {
 					temp_1.add(new Tree2D(newchild, new ArrayList<Tree2D>()));
 				}
 				while (!next_point.equals(currentChild))
-				{   //cherche la distance entre mere_maison et le reste  ne depasse pas bugdet 
+				{   //cherche la distance entre mere_maison et le reste qui ne depasse pas bugdet 
 					indice_next_chmain=paths[k][points.indexOf(currentChild)];
 					k=indice_next_chmain;
 					cpt=(int) (next_point.distance(points.get(indice_next_chmain))+cpt) ; 	
@@ -264,10 +264,10 @@ public class DefaultTeam {
 					budgetAtteint= true;
 					 break; 	 
 				}else{
-					//problème icic dans temp_1 
+					//problème ici dans temp_1 
 					Tree2D newSub =new Tree2D( temp_final.get(0).getRoot(), temp_final.get(0).getSubTrees());
 					temp.add(subTree);
-				//	temp.add( newSub);			
+					//temp.add( newSub);			
 					newTree= new Tree2D(newchild, temp);
 					count =cpt+count; 
 					newChildreen.add(newSub);
