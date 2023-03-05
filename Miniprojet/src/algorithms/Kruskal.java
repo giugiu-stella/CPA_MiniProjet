@@ -7,11 +7,12 @@ public class Kruskal {
 	
 	
   public ArrayList<Edge> kruskal(ArrayList<Point> points) {
-    //KRUSKAL ALGORITHM, NOT OPTIMAL FOR STEINER!
     ArrayList<Edge> edges = new ArrayList<Edge>();
     for (Point p: points) {
       for (Point q: points) {
-        if (p.equals(q) || contains(edges,p,q)) continue;
+        if (p.equals(q) || contains(edges,p,q)){
+          continue;
+        }
         edges.add(new Edge(p,q));
       }
     }
@@ -61,6 +62,7 @@ public class Kruskal {
 
     return new Tree2D(root, subTrees);
   }
+  
   private ArrayList<Edge> sort(ArrayList<Edge> edges) {
     if (edges.size()==1) return edges;
 
