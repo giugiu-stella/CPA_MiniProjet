@@ -39,11 +39,11 @@ public class Edge implements Comparable<Edge> {
 		this.dist = dist;
 	}
  protected double distance(){ return p.distance(q); }
-	public Point getU() {
+	public Point getP() {
 		return p;
 	}
 
-	public Point getV() {
+	public Point getQ() {
 		return q;
 	}
 

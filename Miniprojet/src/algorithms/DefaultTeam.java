@@ -2,12 +2,16 @@ package algorithms;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 public class DefaultTeam {
 
 	public final static double BUDGET = 1664;
-
-	  public int[][] calculShortestPaths(ArrayList<Point> points, int edgeThreshold) {
+	static Kruskal k = new Kruskal();
+	private static int[][] paths;
+	  public static int[][] calculShortestPaths(ArrayList<Point> points, int edgeThreshold) {
 		    int[][] paths=new int[points.size()][points.size()];
 		    for (int i=0;i<paths.length;i++) for (int j=0;j<paths.length;j++) paths[i][j]=-1;
 		    double [][] dist= new double[points.size()][points.size()];
@@ -27,7 +31,7 @@ public class DefaultTeam {
 		    return paths;
 		  }
 		  
-  public void matriceVoisins(double[][] dist,int[][] paths,ArrayList<Point> points,int edgeThreshold){
+  public static void matriceVoisins(double[][] dist,int[][] paths,ArrayList<Point> points,int edgeThreshold){
 			  for(int i=0;i<paths.length;i++) {
 				  for (int j=0;j<paths.length;j++) {
 					  if(points.get(i).distance(points.get(j)) < edgeThreshold) {
@@ -41,7 +45,8 @@ public class DefaultTeam {
 	public Tree2D calculSteiner(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
 		Kruskal k = new Kruskal();
 		// graphe complet qui couvre tous le points de hitpoints
-		Tree2D steinerTree = k.kruskal(hitPoints);
+		ArrayList<Edge> steinerEdge = k.kruskal(hitPoints);
+		 Tree2D steinerTree=k.edgesToTree(steinerEdge,hitPoints.get(0) );
 		//calcul du plus court chemain entre les couple (u v)
 		int[][] paths = calculShortestPaths(points, edgeThreshold);
 		//remplace chaque arete (u-v) de poid (p) par d'autres arrete de poid minimum 
@@ -49,15 +54,70 @@ public class DefaultTeam {
 
 		return newSteinerTree;
 	}
+	
+	   public static Tree2D steinerBudget(ArrayList<Point> points, double budget, int edgeThreshold, ArrayList<Point> hitPoints){
+	        paths = calculShortestPaths(points, edgeThreshold);
+	        ArrayList<Edge> edges = heuristic(points, hitPoints);
+	        ArrayList<Point> visitedPoints = new ArrayList<>();
+	        ArrayList<Edge> res = new ArrayList<>(edges);
+	        // ajout de point maisonMere
+	        visitedPoints.add(hitPoints.get(0));
+	        // le coût (somme de poids de toutes arêtes) total
+	        double cost = 0.0;
+	        // pour chaque point, construire un tas minimum d'arêtes qu'il est relié
+	        // le tas minimum trie les arêtes en ordre de distance (autrement dit poids)
+	        Map<Point, PriorityQueue<Edge>> pointEdgesHeap = new HashMap<>();
+	        for (Edge edge: edges) {
+	            if (!pointEdgesHeap.containsKey(edge.getP())){
+	                pointEdgesHeap.put(edge.getP(), new PriorityQueue<>());
+	            }
+	            if (!pointEdgesHeap.containsKey(edge.getQ())){
+	                pointEdgesHeap.put(edge.getQ(), new PriorityQueue<>());
+	            }
+	            pointEdgesHeap.get(edge.getP()).add(edge);
+	            pointEdgesHeap.get(edge.getQ()).add(edge);
+	        }
+	        Edge minEdge;
+	        while (cost <= budget){
+	            // supposant que le visitedPoints forment un arbre
+	            // on cherche l'arête de distance minimum dans cet arbre
+	            minEdge = findMinimumEdge(pointEdgesHeap, visitedPoints);
+	            if (cost + minEdge.distance() > budget) break;
+	            Point P = minEdge.getP();
+	            Point Q = minEdge.getQ();
+	            pointEdgesHeap.get(P).remove(minEdge);
+	            pointEdgesHeap.get(Q).remove(minEdge);
+	            if (!visitedPoints.contains(P)){
+	                visitedPoints.add(P);
+	            }
+	            if (!visitedPoints.contains(Q)){
+	                visitedPoints.add(Q);
+	            }
+	            cost += minEdge.distance();
+	            res.add(minEdge);
+	        }
+	        res = heuristic(points, visitedPoints);
+	        return k.edgesToTree(res , hitPoints.get(0));
+
+	    }
+	 private static Edge findMinimumEdge(Map<Point, PriorityQueue<Edge>> pointEdgesHeap, ArrayList<Point> points){
+	        PriorityQueue<Edge> candidates = new PriorityQueue<>();
+	        for (Point point: points) {
+	            if (!pointEdgesHeap.get(point).isEmpty()){
+	                candidates.add(pointEdgesHeap.get(point).peek());
+	            }
+	        }
+	        return candidates.peek();
+	    }
 
 	
 	
 	
-	public Tree2D calculSteinerBudget(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
+	public Tree2D calculSteinerBudget_itérativ(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
 		Kruskal k = new Kruskal();
 		// graphe complet qui couvre tous le points de hitpoints
-		Tree2D steinerTree = k.kruskal(hitPoints);
-
+		ArrayList<Edge> steinerEdge = k.kruskal(hitPoints);
+		 Tree2D steinerTree=k.edgesToTree(steinerEdge,hitPoints.get(0) );
 		// replace arretes par le chemin le plus court entre deux points
 		int[][] paths = calculShortestPaths(points, edgeThreshold);
 		
@@ -171,6 +231,38 @@ return new Tree2D(maison_mere, newChildreen);
 		 return  new Tree2D(racine, newChildreen);
 	
 	}
+	
+	
+	
+
+    private static ArrayList<Edge> heuristic(ArrayList<Point> points, ArrayList<Point> hitPoints){
+      
+        ArrayList<Edge> edgesHitPoints = k.kruskal(hitPoints);
+
+        ArrayList<Point> pointsOnPath = new ArrayList<>();
+        for (Edge e: edgesHitPoints){
+            int i = points.indexOf(e.getP());
+            int j = points.indexOf(e.getQ());
+            ArrayList<Integer> pointsIJ = getPointsOnPath(i, j, paths);
+            for (Integer k: pointsIJ){
+                pointsOnPath.add(points.get(k));
+            }
+        }
+        return k.kruskal(pointsOnPath);
+  }
+    
+    
+    
+    public static ArrayList<Integer> getPointsOnPath(int i, int j, int[][] paths){
+        ArrayList<Integer> path = new ArrayList<>();
+        path.add(i);
+        while(paths[i][j] != j){
+            path.add(paths[i][j]);
+            i = paths[i][j];
+        }
+        path.add(j);
+        return path;
+    }
 }
 
 

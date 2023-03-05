@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Kruskal {
 	
 	
-  public Tree2D kruskal(ArrayList<Point> points) {
+  public ArrayList<Edge> kruskal(ArrayList<Point> points) {
     //KRUSKAL ALGORITHM, NOT OPTIMAL FOR STEINER!
     ArrayList<Edge> edges = new ArrayList<Edge>();
     for (Point p: points) {
@@ -28,8 +28,10 @@ public class Kruskal {
       }
     }
 
-    return edgesToTree(kruskal,kruskal.get(0).p);
+    return kruskal;
   }
+  
+  
   private boolean contains(ArrayList<Edge> edges,Point p,Point q){
     for (Edge e:edges){
       if (e.p.equals(p) && e.q.equals(q) ||
@@ -37,7 +39,7 @@ public class Kruskal {
     }
     return false;
   }
-  private Tree2D edgesToTree(ArrayList<Edge> edges, Point root) {
+   Tree2D edgesToTree(ArrayList<Edge> edges, Point root) {
     ArrayList<Edge> remainder = new ArrayList<Edge>();
     ArrayList<Point> subTreeRoots = new ArrayList<Point>();
     Edge current;
