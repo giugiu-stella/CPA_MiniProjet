@@ -55,9 +55,23 @@ public class DefaultTeam {
 		return newSteinerTree;
 	}
 	
-	   public static Tree2D steinerBudget(ArrayList<Point> points, double budget, int edgeThreshold, ArrayList<Point> hitPoints){
+	 private static Edge findMinimumEdge(Map<Point, PriorityQueue<Edge>> pointEdgesHeap, ArrayList<Point> points){
+	        PriorityQueue<Edge> candidates = new PriorityQueue<>();
+	        for (Point point: points) {
+	            if (!pointEdgesHeap.get(point).isEmpty()){
+	                candidates.add(pointEdgesHeap.get(point).peek());
+	            }
+	        }
+	        return candidates.peek();
+	    }
+
+	
+	
+	
+	public Tree2D calculSteinerBudget(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
+		 System.out.println("je suis la ");
 	        paths = calculShortestPaths(points, edgeThreshold);
-	        ArrayList<Edge> edges = heuristic(points, hitPoints);
+	        ArrayList<Edge> edges = arbre_poids_min(points, hitPoints);
 	        ArrayList<Point> visitedPoints = new ArrayList<>();
 	        ArrayList<Edge> res = new ArrayList<>(edges);
 	        // ajout de point maisonMere
@@ -78,11 +92,11 @@ public class DefaultTeam {
 	            pointEdgesHeap.get(edge.getQ()).add(edge);
 	        }
 	        Edge minEdge;
-	        while (cost <= budget){
+	        while (cost <= BUDGET){
 	            // supposant que le visitedPoints forment un arbre
 	            // on cherche l'arête de distance minimum dans cet arbre
 	            minEdge = findMinimumEdge(pointEdgesHeap, visitedPoints);
-	            if (cost + minEdge.distance() > budget) break;
+	            if (cost + minEdge.distance() > BUDGET) break;
 	            Point P = minEdge.getP();
 	            Point Q = minEdge.getQ();
 	            pointEdgesHeap.get(P).remove(minEdge);
@@ -96,24 +110,14 @@ public class DefaultTeam {
 	            cost += minEdge.distance();
 	            res.add(minEdge);
 	        }
-	        res = heuristic(points, visitedPoints);
+	        res = arbre_poids_min(points, visitedPoints);
 	        return k.edgesToTree(res , hitPoints.get(0));
-
-	    }
-	 private static Edge findMinimumEdge(Map<Point, PriorityQueue<Edge>> pointEdgesHeap, ArrayList<Point> points){
-	        PriorityQueue<Edge> candidates = new PriorityQueue<>();
-	        for (Point point: points) {
-	            if (!pointEdgesHeap.get(point).isEmpty()){
-	                candidates.add(pointEdgesHeap.get(point).peek());
-	            }
-	        }
-	        return candidates.peek();
-	    }
-
+	}
 	
 	
 	
-	public Tree2D calculSteinerBudget_itérativ(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
+	
+	public Tree2D calculSteinerBudget_recur(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
 		Kruskal k = new Kruskal();
 		// graphe complet qui couvre tous le points de hitpoints
 		ArrayList<Edge> steinerEdge = k.kruskal(hitPoints);
@@ -125,6 +129,8 @@ public class DefaultTeam {
 
 		return newSteinerTree ;
 	}
+	
+	
 	
 	public int  count =0 ;
 	boolean budgetAtteint=false;
@@ -235,7 +241,7 @@ return new Tree2D(maison_mere, newChildreen);
 	
 	
 
-    private static ArrayList<Edge> heuristic(ArrayList<Point> points, ArrayList<Point> hitPoints){
+    private static ArrayList<Edge> arbre_poids_min(ArrayList<Point> points, ArrayList<Point> hitPoints){
       
         ArrayList<Edge> edgesHitPoints = k.kruskal(hitPoints);
 
