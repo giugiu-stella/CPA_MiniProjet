@@ -67,29 +67,28 @@ public class DefaultTeam {
 	private Tree2D algo(int[][] paths, Tree2D steinerTree, ArrayList<Point> points) {
 		Point racine = steinerTree.getRoot();
 		ArrayList<Tree2D> newChildreen = new ArrayList<>();
-		for (Tree2D subTree : steinerTree.getSubTrees()) {
-			Point currentChild = subTree.getRoot();
+		for (Tree2D sous_arbre : steinerTree.getSubTrees()) {
+			Point child =sous_arbre.getRoot();
 			
 			//le sucesseur directe de la racine  dans le plus court chemain entre i et j
-			int k = paths[points.indexOf(racine)][points.indexOf(currentChild)];
+			int indice_next = paths[points.indexOf(racine)][points.indexOf(child)];
 
 			//Cas1: le sucessseur directe a la racine est le meme que curentchild (aucune modification)  etant donne que le plus cours chemain entre (racine-curentchild) est (racine-curentchild)
-			if (points.get(k).equals(currentChild)) {
-				Tree2D newSubTree = algo(paths, subTree, points);
+			if (points.get(indice_next).equals(child)) {
+				Tree2D newSubTree = algo(paths, sous_arbre, points);
 				newChildreen.add(newSubTree);
 			} else {
 				//cas2: existance d'un point k (racine--- k--- ....curentCHILD) qui fait que il existe un autre chemain  entre racine et curentchild plus court 
 				//remplacer  :r(acine--- curentchild) par ( racine ----k---curentchild)
-				Point newchild = points.get(k);
-				ArrayList<Tree2D> temp = new ArrayList<Tree2D>();
-				temp.add(subTree);
-				Tree2D newTree = new Tree2D(newchild, temp);
+				Point  child_intermediare = points.get(indice_next);
+				ArrayList<Tree2D>  liste= new ArrayList<Tree2D>();
+				liste.add(sous_arbre);
+				Tree2D newTree = new Tree2D(child_intermediare, liste);
 				Tree2D newSubTree = algo(paths, newTree, points);
 				newChildreen.add(newSubTree);
 			}
 		}
 		 return  new Tree2D(racine, newChildreen);
-	
 	}
 	
 	public Tree2D calculSteinerBudget(ArrayList<Point> points, int edgeThreshold, ArrayList<Point> hitPoints) {
@@ -211,18 +210,18 @@ public class DefaultTeam {
 		Point maison_mere = steinerTree.getRoot();
 		ArrayList<Tree2D> newChildreen = new ArrayList<>();
 		 while (!  budgetAtteint) {
-		for (Tree2D subTree : steinerTree.getSubTrees())
+		for (Tree2D sous_arbre : steinerTree.getSubTrees())
 		{
-		    Point currentChild =  subTree.getRoot();
+		    Point currentChild = sous_arbre.getRoot();
 			int k = paths[points.indexOf(maison_mere)][points.indexOf(currentChild)];
 			if (points.get(k).equals(currentChild)) {
 				if (count+maison_mere.distance(currentChild) >=BUDGET) // n'ajoute pas le nouveau point 
-				{   algobuget (paths, subTree, points);
+				{   algobuget (paths, sous_arbre, points);
 					budgetAtteint= true;
 					 break; 	 
 				}else{  //ajoute le nouveau point 
 					count +=maison_mere.distance(currentChild);
-					Tree2D newSubTree =algobuget (paths, subTree, points);
+					Tree2D newSubTree =algobuget (paths, sous_arbre, points);
 					newChildreen.add(newSubTree);
 				}
 			  }
@@ -235,7 +234,7 @@ public class DefaultTeam {
 				ArrayList<Tree2D> temp = new ArrayList<Tree2D>();			
 				ArrayList<Tree2D> temp_1 = new ArrayList<Tree2D>();				
 				ArrayList<Tree2D> temp_final = new ArrayList<Tree2D>();				
-				Tree2D realsub=subTree;
+				Tree2D realsub=sous_arbre;
 				if (temp_1.isEmpty())
 				{
 					temp_final=temp_1;
@@ -258,15 +257,15 @@ public class DefaultTeam {
 				System.out.println("la valeur de count  "+count);
 
 				if(budgetAtteint== false && count+cpt >= BUDGET)
-				{ 
-					Tree2D newSubTree =algobuget (paths, subTree, points);
-					System.out.println("Buget atteint ");
-					budgetAtteint= true;
+				{   System.out.println("Buget atteint ");
+		    		budgetAtteint= true;
+					algobuget (paths, sous_arbre, points);
+					
 					 break; 	 
 				}else{
 					//problème ici dans temp_1 
 					Tree2D newSub =new Tree2D( temp_final.get(0).getRoot(), temp_final.get(0).getSubTrees());
-					temp.add(subTree);
+					temp.add(sous_arbre);
 					//temp.add( newSub);			
 					newTree= new Tree2D(newchild, temp);
 					count =cpt+count; 
